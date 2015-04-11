@@ -4,7 +4,7 @@
 public class GUIModel {
 
     public GUIModel() {
-        
+
     }
 
 }
