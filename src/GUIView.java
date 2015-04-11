@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
@@ -7,14 +8,20 @@ import java.awt.event.KeyEvent;
 public class GUIView extends JFrame {
 
     private JMenuBar menuBar;
-    private CreateProfilePane createProfilePane;
-    private SelectModulesPane selectModulesPane;
-    private OverviewResultsPane overviewResultsPane;
+    private CreateProfilePanel createProfilePanel;
+    private SelectModulesPanel selectModulesPanel;
+    private OverviewResultsPanel overviewResultsPanel;
+    private JMenuItem loadStudentDataItem;
+    private JMenuItem saveStudentDataItem;
+    private JMenuItem exitItem;
 
     public GUIView(GUIModel model) {
 
-        CreateMenuBar();
+        setTitle("Final Year Module Chooser");
+        setSize(600, 500);
 
+        CreateMenuBar();
+        CreateTabbedPane();
 
     }
 
@@ -25,25 +32,50 @@ public class GUIView extends JFrame {
         JMenu fileMenuButton = new JMenu("File");
         fileMenuButton.setMnemonic(KeyEvent.VK_F);
 
-        JMenuItem loadStudentDataButton = new JMenuItem("Load Student Data");
-        loadStudentDataButton.setMnemonic(KeyEvent.VK_L);
+        loadStudentDataItem = new JMenuItem("Load Student Data");
+        loadStudentDataItem.setMnemonic(KeyEvent.VK_L);
 
-        JMenuItem saveStudentDataButton = new JMenuItem("Save Student Data");
-        saveStudentDataButton.setMnemonic(KeyEvent.VK_S);
+        saveStudentDataItem = new JMenuItem("Save Student Data");
+        saveStudentDataItem.setMnemonic(KeyEvent.VK_S);
 
-        JMenuItem exitButton = new JMenuItem("Exit");
-        exitButton.setMnemonic(KeyEvent.VK_E);
+        exitItem = new JMenuItem("Exit");
+        exitItem.setMnemonic(KeyEvent.VK_E);
 
-        fileMenuButton.add(loadStudentDataButton);
-        fileMenuButton.add(saveStudentDataButton);
-        fileMenuButton.add(exitButton);
+        fileMenuButton.add(loadStudentDataItem);
+        fileMenuButton.add(saveStudentDataItem);
+        fileMenuButton.add(exitItem);
 
         menuBar.add(fileMenuButton);
 
         setJMenuBar(menuBar);
+    }
 
+    public void CreateTabbedPane() {
 
+        createProfilePanel = new CreateProfilePanel();
+        selectModulesPanel = new SelectModulesPanel();
+        overviewResultsPanel = new OverviewResultsPanel();
 
+        JTabbedPane tabPane = new JTabbedPane();
+
+        tabPane.addTab("Create Profile", createProfilePanel);
+        tabPane.addTab("Select Modules", selectModulesPanel);
+        tabPane.addTab("Overview Results", overviewResultsPanel);
+
+        add(tabPane);
+
+    }
+
+    public void addLoadActionListener(ActionListener loadAL) {
+        loadStudentDataItem.addActionListener(loadAL);
+    }
+
+    public void addSaveActionListener(ActionListener saveAL) {
+        saveStudentDataItem.addActionListener(saveAL);
+    }
+
+    public void addExitActionListener(ActionListener exitAL) {
+        exitItem.addActionListener(exitAL);
     }
 
 }
