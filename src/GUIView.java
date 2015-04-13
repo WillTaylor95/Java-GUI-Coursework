@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 /**
  * Created by Will on 11/04/2015.
@@ -76,6 +77,10 @@ public class GUIView extends JFrame {
 
     public void addExitActionListener(ActionListener exitAL) {
         exitItem.addActionListener(exitAL);
+    }
+
+    public void populateCourseBox (ArrayList<Course> courseList) {
+        createProfilePanel.populateCourseList(courseList);
     }
 
 }
