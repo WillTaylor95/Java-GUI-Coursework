@@ -15,20 +15,23 @@ public class GUIView extends JFrame {
     private JMenuItem loadStudentDataItem;
     private JMenuItem saveStudentDataItem;
     private JMenuItem exitItem;
+    private JFileChooser fileChooser;
 
-    public GUIView(GUIModel model) {
+    public GUIView(StudentProfile model) {
 
         setTitle("Final Year Module Chooser");
-        setSize(600, 500);
+        setSize(700, 500);
 
         CreateMenuBar();
         CreateTabbedPane();
+        fileChooser = new JFileChooser();
 
     }
 
     public void CreateMenuBar() {
 
         menuBar = new JMenuBar();
+
 
         JMenu fileMenuButton = new JMenu("File");
         fileMenuButton.setMnemonic(KeyEvent.VK_F);
@@ -89,5 +92,9 @@ public class GUIView extends JFrame {
 
     public OverviewResultsPanel getOverviewResultsPanel() {
         return overviewResultsPanel;
+    }
+
+    public JFileChooser getFileChooser() {
+        return fileChooser;
     }
 }

@@ -1,6 +1,6 @@
+import java.io.Serializable;
 
-
-public class Name {
+public class Name implements Serializable {
 
 	private String firstName;
 	private String familyName;

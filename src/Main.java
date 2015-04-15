@@ -5,7 +5,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        GUIModel model = new GUIModel();
+        StudentProfile model = new StudentProfile();
         GUIView view = new GUIView(model);
         GUIController controller = new GUIController(model, view);
 

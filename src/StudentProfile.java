@@ -1,11 +1,12 @@
 
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.TreeSet;
 
 
 
-public class StudentProfile {
+public class StudentProfile implements Serializable {
 
 	private String pNumber;
 	private Name studentName;

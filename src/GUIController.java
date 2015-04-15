@@ -1,6 +1,9 @@
+
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -8,15 +11,19 @@ import java.util.ArrayList;
  */
 public class GUIController {
 
-    private GUIModel model;
     private GUIView view;
     private ArrayList<Course> courseList;
     private StudentProfile currentStudentProfile;
+    private DefaultListModel<Module> selectedListModel;
+    private DefaultListModel<Module> unselectedListModel;
+    private Integer currentCredits;
 
-    public GUIController(GUIModel model, GUIView view) {
+    public GUIController(StudentProfile currentStudentProfile, GUIView view) {
 
-        this.model = model;
+        this.currentStudentProfile = currentStudentProfile;
         this.view = view;
+
+        currentCredits = new Integer(0);
 
         view.addLoadActionListener(new LoadActionListener());
         view.addSaveActionListener(new SaveActionListener());
@@ -24,6 +31,10 @@ public class GUIController {
         view.getCreateProfilePanel().populateCourseList(CreateCourseList());
         view.getCreateProfilePanel().addCreateActionListener(new createProfileActionListener());
         view.getSelectModulesPanel().addAddActionListener(new createAddActionListener());
+        view.getSelectModulesPanel().addResetActionListener(new ResetActionListener());
+        view.getSelectModulesPanel().addRemoveActionListener(new RemoveActionListener());
+        view.getSelectModulesPanel().addSubmitActionListener(new SubmitActionListener());
+        view.getOverviewResultsPanel().addSaveOverviewActionListener(new saveOverviewActionListener());
     }
 
 
@@ -31,7 +42,7 @@ public class GUIController {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            load();
         }
     }
 
@@ -39,7 +50,7 @@ public class GUIController {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            save();
         }
     }
 
@@ -51,16 +62,66 @@ public class GUIController {
         }
     }
 
+    private void load() {
+
+        view.getFileChooser().showOpenDialog(view);
+
+        File file = view.getFileChooser().getSelectedFile();
+
+        try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file))) {
+            currentStudentProfile = (StudentProfile)inputStream.readObject();
+
+            view.getCreateProfilePanel().setSelectCourseCB(currentStudentProfile.getCourse());
+            view.getCreateProfilePanel().setFirstNameTF(currentStudentProfile.getStudentName().getFirstName());
+            view.getCreateProfilePanel().setLastNameTF(currentStudentProfile.getStudentName().getFamilyName());
+            view.getCreateProfilePanel().setpNumberTF(currentStudentProfile.getpNumber());
+            view.getSelectModulesPanel().populateUnselectList(populateUnselectList());
+            view.getSelectModulesPanel().populateSelectList(populateSelectList());
+
+            for (Module m : currentStudentProfile.getSelectedModules()) {
+                selectedListModel.addElement(m);
+                unselectedListModel.removeElement(m);
+            }
+            calculateCurrentCredits();
+        }
+
+        catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error Loading file", "Load Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+
+    private void save() {
+
+
+        view.getFileChooser().showOpenDialog(view);
+
+        File file = view.getFileChooser().getSelectedFile();
+
+        try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file))) {
+            outputStream.writeObject(currentStudentProfile);
+            outputStream.flush();
+            JOptionPane.showMessageDialog(null, "Successfully Saved Profile");
+        }
+
+        catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error saving file", "Save Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
     class createProfileActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             currentStudentProfile = new StudentProfile();
             currentStudentProfile.setCourse(view.getCreateProfilePanel().getCourseBoxState());
             currentStudentProfile.setStudentName(new Name(view.getCreateProfilePanel().getFirstName(), view.getCreateProfilePanel().getLastName()));
             currentStudentProfile.setpNumber(view.getCreateProfilePanel().getPNumber());
-            populateUnselectList();
             System.out.println(currentStudentProfile.toString());
             view.getSelectModulesPanel().populateUnselectList(populateUnselectList());
             view.getSelectModulesPanel().populateSelectList(populateSelectList());
+            calculateCurrentCredits();
         }
     }
 
@@ -116,41 +177,132 @@ public class GUIController {
         @Override
         public void actionPerformed(ActionEvent e) {
 
-            Module m = (Module)view.getSelectModulesPanel().getUnselectList().getSelectedValue();
+            if (!view.getSelectModulesPanel().getUnselectList().isSelectionEmpty()) {
+                Module m = (Module) view.getSelectModulesPanel().getUnselectList().getSelectedValue();
+                selectedListModel.addElement(m);
+                unselectedListModel.removeElement(m);
+                calculateCurrentCredits();
+            }
+        }
+    }
 
-            view.getSelectModulesPanel().getUnselectedListModel().addElement(m);
-            view.getSelectModulesPanel().getUnselectedListModel().removeElement(m);
+    class RemoveActionListener implements ActionListener {
 
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            if (!view.getSelectModulesPanel().getSelectList().isSelectionEmpty()) {
+                Module m = (Module) view.getSelectModulesPanel().getSelectList().getSelectedValue();
+                unselectedListModel.addElement(m);
+                selectedListModel.removeElement(m);
+                calculateCurrentCredits();
+            }
         }
     }
 
     public DefaultListModel populateUnselectList() {
-        DefaultListModel<Module> unselectModel = new DefaultListModel<>();
+        unselectedListModel = new DefaultListModel<>();
 
             for (Module m : currentStudentProfile.getCourse().getModulesOnCourse()) {
-                unselectModel.addElement(m);
+                if (!m.isMandatory()) {
+                    unselectedListModel.addElement(m);
+                }
             }
 
-        return unselectModel;
+        return unselectedListModel;
     }
 
 
 
 
     private DefaultListModel populateSelectList() {
-        DefaultListModel<Module> selectModel = new DefaultListModel<>();
+
+        selectedListModel = new DefaultListModel<>();
 
         for (Module m : currentStudentProfile.getCourse().getModulesOnCourse()) {
             if (m.isMandatory()) {
-                selectModel.addElement(m);
+                selectedListModel.addElement(m);
+                currentStudentProfile.addSelectedModule(m);
             }
         }
 
-        return selectModel;
+        return selectedListModel;
 
     }
 
+    class ResetActionListener implements ActionListener  {
 
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            view.getSelectModulesPanel().populateSelectList(populateSelectList());
+            view.getSelectModulesPanel().populateUnselectList(populateUnselectList());
+            calculateCurrentCredits();
+        }
 
+    }
+
+    class SubmitActionListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (currentCredits==120) {
+                for (int i = 0; i < selectedListModel.getSize(); i++) {
+                    currentStudentProfile.addSelectedModule(selectedListModel.get(i));
+                }
+                fillOverviewTextArea();
+            }
+
+            else
+                JOptionPane.showMessageDialog(null, "You need 120 Credits total", "Submit Error", JOptionPane.ERROR_MESSAGE);
+
+        }
+    }
+
+    private void calculateCurrentCredits() {
+        currentCredits = 0;
+        for (int i = 0; i < selectedListModel.getSize(); i++) {
+            currentCredits = currentCredits + selectedListModel.get(i).getCredits();
+        }
+
+        view.getSelectModulesPanel().updateCredits(currentCredits);
+
+    }
+
+    public void fillOverviewTextArea() {
+        view.getOverviewResultsPanel().getOverviewTextArea().setText("Name: " + currentStudentProfile.getStudentName().getFullName() + "\n");
+        view.getOverviewResultsPanel().getOverviewTextArea().append("PNo: " + currentStudentProfile.getpNumber() + "\n");
+        view.getOverviewResultsPanel().getOverviewTextArea().append("Course: " + currentStudentProfile.getCourse().getCourseName() + "\n\n");
+        view.getOverviewResultsPanel().getOverviewTextArea().append("Selected Modules:\n==============\n");
+        for (Module m: currentStudentProfile.getSelectedModules()) {
+            view.getOverviewResultsPanel().getOverviewTextArea().append("Module Code: " + m.getModuleCode() + "\n");
+            view.getOverviewResultsPanel().getOverviewTextArea().append("Credits: " + m.getCredits() + "\n");
+
+            if (m.isMandatory())
+                view.getOverviewResultsPanel().getOverviewTextArea().append("Mandatory on your course? yes\n");
+            else
+                view.getOverviewResultsPanel().getOverviewTextArea().append("Mandatory on your course? no\n");
+
+            view.getOverviewResultsPanel().getOverviewTextArea().append("Module Name: " + m.getModuleName() + "\n\n");
+        }
+    }
+
+    class saveOverviewActionListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            view.getFileChooser().showOpenDialog(view);
+            File file = view.getFileChooser().getSelectedFile();
+
+            try (PrintWriter printWriter = new PrintWriter(file)) {
+                printWriter.print(view.getOverviewResultsPanel().getOverviewText());
+            }
+
+            catch (FileNotFoundException ex) {
+                JOptionPane.showMessageDialog(null, "File not Found", "Save Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+        }
+    }
 
 }

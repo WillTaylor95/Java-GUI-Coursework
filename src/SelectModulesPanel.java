@@ -54,6 +54,7 @@ public class SelectModulesPanel extends JPanel {
         JPanel currentCreditsPanel = new JPanel(new FlowLayout());
         currentCredLabel = new JLabel("Current Credits:");
         currentCredField = new JTextField(10);
+        currentCredField.setEditable(false);
         currentCreditsPanel.add(currentCredLabel);
         currentCreditsPanel.add(currentCredField);
         selectPanel.add(selectLabel);
@@ -82,6 +83,18 @@ public class SelectModulesPanel extends JPanel {
         addButton.addActionListener(addActionListener);
     }
 
+    public void addResetActionListener(ActionListener resetActionListener) {
+        resetButton.addActionListener(resetActionListener);
+    }
+
+    public void addRemoveActionListener(ActionListener removeActionListener) {
+        removeButton.addActionListener(removeActionListener);
+    }
+
+    public void addSubmitActionListener(ActionListener submitActionListener) {
+        submitButton.addActionListener(submitActionListener);
+    }
+
     public DefaultListModel getUnselectedListModel() {
         return unselectedListModel;
     }
@@ -104,6 +117,10 @@ public class SelectModulesPanel extends JPanel {
 
     public void populateSelectList(DefaultListModel model) {
         selectList.setModel(model);
+    }
+
+    public void updateCredits(Integer credits) {
+        currentCredField.setText("" + credits);
     }
 
 }

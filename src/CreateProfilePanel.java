@@ -76,6 +76,7 @@ public class CreateProfilePanel extends JPanel {
         createProfileButton.addActionListener(createAL);
     }
 
+
     public Course getCourseBoxState() {
         return (Course)selectCourseCB.getSelectedItem();
     }
@@ -90,6 +91,22 @@ public class CreateProfilePanel extends JPanel {
 
     public String getPNumber() {
         return pNumberTF.getText();
+    }
+
+    public void setSelectCourseCB(Course course) {
+        selectCourseCB.setSelectedItem(course);
+    }
+
+    public void setFirstNameTF(String s) {
+        firstNameTF.setText(s);
+    }
+
+    public void setLastNameTF(String s) {
+        lastNameTF.setText(s);
+    }
+
+    public void setpNumberTF(String s) {
+        pNumberTF.setText(s);
     }
 
 }
