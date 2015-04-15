@@ -1,7 +1,6 @@
-import com.sun.org.apache.xpath.internal.operations.Mod;
-
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 /**
  * Created by Will on 11/04/2015.
@@ -18,38 +17,49 @@ public class SelectModulesPanel extends JPanel {
     private JButton removeButton;
     private JButton addButton;
     private JButton submitButton;
+    private JScrollPane unselectListScrollBox;
+    private JScrollPane selectListScrollBox;
+
+    private DefaultListModel<Module> unselectedListModel;
+    private DefaultListModel<Module> selectedListModel;
 
     public SelectModulesPanel() {
-
-
         addComponents();
-
     }
 
     public void addComponents() {
 
         setLayout(new BorderLayout());
         JPanel unselectPanel = new JPanel();
+
+        unselectList = new JList<>();
+        selectList = new JList<>();
+
+        unselectedListModel = new DefaultListModel<>();
+        selectedListModel = new DefaultListModel<>();
+
         unselectPanel.setLayout(new BoxLayout(unselectPanel, BoxLayout.Y_AXIS));
         unselectLabel = new JLabel("Unselected Modules");
 
-        DefaultListModel<Module> model = new DefaultListModel<>();
 
-        unselectList = new JList<>();
         unselectPanel.add(unselectLabel);
-        unselectPanel.add(unselectList);
+        unselectListScrollBox = new JScrollPane();
+        unselectListScrollBox.setViewportView(unselectList);
+        unselectPanel.add(unselectListScrollBox);
 
         JPanel selectPanel = new JPanel();
         selectPanel.setLayout(new BoxLayout(selectPanel, BoxLayout.Y_AXIS));
         selectLabel = new JLabel("Selected Modules");
-        selectList = new JList<>();
+
         JPanel currentCreditsPanel = new JPanel(new FlowLayout());
         currentCredLabel = new JLabel("Current Credits:");
         currentCredField = new JTextField(10);
         currentCreditsPanel.add(currentCredLabel);
         currentCreditsPanel.add(currentCredField);
         selectPanel.add(selectLabel);
-        selectPanel.add(selectList);
+        selectListScrollBox = new JScrollPane();
+        selectListScrollBox.setViewportView(selectList);
+        selectPanel.add(selectListScrollBox);
         selectPanel.add(currentCreditsPanel);
 
         JPanel buttonsPanel = new JPanel(new FlowLayout());
@@ -66,6 +76,34 @@ public class SelectModulesPanel extends JPanel {
         add(selectPanel, BorderLayout.LINE_END);
         add(buttonsPanel, BorderLayout.PAGE_END);
 
+    }
+
+    public void addAddActionListener(ActionListener addActionListener) {
+        addButton.addActionListener(addActionListener);
+    }
+
+    public DefaultListModel getUnselectedListModel() {
+        return unselectedListModel;
+    }
+
+    public DefaultListModel getSelectedListModel() {
+        return selectedListModel;
+    }
+
+    public JList getSelectList() {
+        return selectList;
+    }
+
+    public JList getUnselectList() {
+        return unselectList;
+    }
+
+    public void populateUnselectList(DefaultListModel model) {
+        unselectList.setModel(model);
+    }
+
+    public void populateSelectList(DefaultListModel model) {
+        selectList.setModel(model);
     }
 
 }

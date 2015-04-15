@@ -79,8 +79,15 @@ public class GUIView extends JFrame {
         exitItem.addActionListener(exitAL);
     }
 
-    public void populateCourseBox (ArrayList<Course> courseList) {
-        createProfilePanel.populateCourseList(courseList);
+    public CreateProfilePanel getCreateProfilePanel() {
+        return createProfilePanel;
     }
 
+    public SelectModulesPanel getSelectModulesPanel() {
+        return selectModulesPanel;
+    }
+
+    public OverviewResultsPanel getOverviewResultsPanel() {
+        return overviewResultsPanel;
+    }
 }

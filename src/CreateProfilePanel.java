@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 /**
@@ -67,8 +68,28 @@ public class CreateProfilePanel extends JPanel {
 
     public void populateCourseList(ArrayList<Course> courseList) {
         for (Course c : courseList) {
-            selectCourseCB.addItem(c.getCourseName());
+            selectCourseCB.addItem(c);
         }
+    }
+
+    public void addCreateActionListener(ActionListener createAL) {
+        createProfileButton.addActionListener(createAL);
+    }
+
+    public Course getCourseBoxState() {
+        return (Course)selectCourseCB.getSelectedItem();
+    }
+
+    public String getFirstName() {
+        return firstNameTF.getText();
+    }
+
+    public String getLastName() {
+        return lastNameTF.getText();
+    }
+
+    public String getPNumber() {
+        return pNumberTF.getText();
     }
 
 }
